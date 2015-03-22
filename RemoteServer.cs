@@ -35,7 +35,6 @@ namespace AppPool
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 Console.WriteLine("Server Response: " + responseString);
-                MessageBox.Show("Started");
             }
         }
         public static void Connect(RDPSession session)

@@ -8,18 +8,36 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AxRDPCOMAPILib;
+using Newtonsoft.Json;
 
 namespace AppPool
 {
     public partial class RemoteViewer : Form
     {
         public string ip;
+        public string appName;
+        UDPClient con;
         public RemoteViewer(string appName, string invitation, string ip)
         {
             InitializeComponent();
+
+            this.appName = appName;
             this.Text = appName;
-            Connect(invitation, this.rdpViewer, "", "");
             this.ip = ip;
+
+            Connect(invitation, this.rdpViewer, "", "");
+            
+            con = new UDPClient();
+
+            sendAppOpenRequest(this.appName);
+        }
+        public void sendAppOpenRequest(string appName)
+        {
+            IDictionary<string, string> message = new Dictionary<string, string>();
+            message["launchApp"] = appName;
+
+            string json = JsonConvert.SerializeObject(message);
+            con.send(ip, json);
         }
 
         public static void Connect(string invitation, AxRDPViewer display, string userName, string password)
@@ -44,7 +62,6 @@ namespace AppPool
 
         private void sendBtn_Click(object sender, EventArgs e)
         {
-            UDPClient con = new UDPClient();
             con.send(ip, "test message");
         }
     }
