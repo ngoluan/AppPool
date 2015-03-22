@@ -7,67 +7,44 @@ using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace AppPool
 {
     class UDPListener
     {
         private const int listenPort = 11000;
-        public static bool messageReceived = false;
         public UDPListener()
         {
-            Thread oThread = new Thread(ReceiveMessages);
-            oThread.Start();
-        }
-
-
-        public static void ReceiveCallback(IAsyncResult ar)
-        {
-            UdpClient u = (UdpClient)((UdpState)(ar.AsyncState)).u;
-            IPEndPoint e = (IPEndPoint)((UdpState)(ar.AsyncState)).e;
-
-            Byte[] receiveBytes = u.EndReceive(ar, ref e);
-            string receiveString = Encoding.ASCII.GetString(receiveBytes);
-
-            Console.WriteLine("Received: {0}", receiveString);
-
-            dynamic json = JsonConvert.DeserializeObject(receiveString);
-
-            if (json.launchApp != null)
+            bool done = false;
+            UdpClient listener = new UdpClient(listenPort);
+            IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, listenPort);
+            string received_data;
+            byte[] receive_byte_array;
+            try
             {
-                string launchApp = json.launchApp;
-                Console.WriteLine(launchApp);
-                Utilities utilities = new Utilities();
-                utilities.OpenApp(launchApp);
+
+                    Console.WriteLine("Waiting for broadcast");
+                    // this is the line of code that receives the broadcase message.
+                    // It calls the receive function from the object listener (class UdpClient)
+                    // It passes to listener the end point groupEP.
+                    // It puts the data from the broadcast message into the byte array
+                    // named received_byte_array.
+                    // I don't know why this uses the class UdpClient and IPEndPoint like this.
+                    // Contrast this with the talker code. It does not pass by reference.
+                    // Note that this is a synchronous or blocking call.
+                    receive_byte_array = listener.Receive(ref groupEP);
+                    
+                    received_data = Encoding.ASCII.GetString(receive_byte_array, 0, receive_byte_array.Length);
+
+                    MessageBox.Show("Received a broadcast from " + groupEP.ToString());
+                    MessageBox.Show("data follows " +  received_data);
             }
-            
-        }
-
-        public static void ReceiveMessages()
-        {
-            //// Receive a message and write it to the console.
-            IPEndPoint e = new IPEndPoint(IPAddress.Any, listenPort);
-            UdpClient u = new UdpClient(e);
-
-            UdpState s = new UdpState();
-            s.e = e;
-            s.u = u;
-            Console.WriteLine("listening for messages");
-            u.BeginReceive(new AsyncCallback(ReceiveCallback), s);
-
-            // Do some work while we wait for a message. For this example, 
-            // we'll just sleep 
-            while (!messageReceived)
+            catch (Exception e)
             {
-                Thread.Sleep(100);
+                Console.WriteLine(e.ToString());
             }
+            listener.Close();
         }
 
     }
-    public class UdpState
-    {
-        public IPEndPoint e = null;
-        public UdpClient u = null;
-    }  
 }

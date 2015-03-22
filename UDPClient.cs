@@ -61,7 +61,7 @@ namespace AppPool
                     byte[] send_buffer = Encoding.ASCII.GetBytes(msg);
 
                     // Remind the user of where this is going.
-                    //MessageBox.Show("sending to address: "+sending_end_point.Address.ToString()+" "+ sending_end_point.Port.ToString());
+                    MessageBox.Show("sending to address: "+sending_end_point.Address.ToString()+" "+ sending_end_point.Port.ToString());
                     try
                     {
                         sending_socket.SendTo(send_buffer, sending_end_point);

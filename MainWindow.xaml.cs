@@ -29,17 +29,13 @@ namespace AppPool
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Utilities utilities = new Utilities();
-            utilities.OpenApp("GIMP");
+
         }
 
         private void Server_Click(object sender, RoutedEventArgs e)
         {
-            Button button = (Button) sender;
-            button.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF15D82F"));
             UDPListener udpListener = new UDPListener();
-            RemoteServer server = new RemoteServer();
-            server.startSession();
+
         }
 
         private void launchApp_Click(object sender, RoutedEventArgs e)
